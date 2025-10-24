@@ -1,5 +1,5 @@
 from flask import Flask, request, redirect, url_for, flash, session, render_template_string
-
+import subprocess, json
 app = Flask(__name__)
 app.secret_key = "worldcup2022key"
 
@@ -7,9 +7,9 @@ app.secret_key = "worldcup2022key"
 # USERS
 # ==============================
 users = {
-    "mohamedyassine.janfaoui@esprit.tn": {"password": "admin2022", "role": "Directeur Sportif"},
-    "farah.boubaker@esprit.tn": {"password": "coach2022", "role": "Entraîneur France"},
-    "rayen.aloui@esprit.tn": {"password": "recruit2022", "role": "Recruteur France"},
+    "ahmed.tounsi@esprit.tn": {"password": "2022", "role": "Directeur Sportif"},
+    "farah.boubaker@esprit.tn": {"password": "2022", "role": "Entraîneur France"},
+    "ahmedrayen.aloui@esprit.tn": {"password": "2022", "role": "Recruteur France"},
 }
 
 # multiple Power BI dashboard (RLS controls what each user sees)
@@ -214,6 +214,157 @@ def dashboard():
     """
     return render_template_string(dashboard_html)
 
+
+@app.route("/chatbot")
+def chatbot():
+    user = session.get("user")
+    if not user:
+        return redirect(url_for("login"))
+
+    role = users[user]["role"]
+
+    chatbot_html = """
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='2022_FIFA_World_Cup.svg.png') }}">
+        <title>{{ role }} | Chatbot</title>
+        <style>
+            body {
+                margin: 0;
+                background-color: #F7E7CE;
+                color: #8A1538;
+                font-family: 'Montserrat', sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 100vh;
+            }
+            header {
+                background-color: #8A1538;
+                color: #F7E7CE;
+                width: 90%;
+                padding: 5px 40px;
+                margin: 0px auto 0 auto;
+                border-radius: 12px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            }
+            .header-buttons {
+                display: flex;
+                gap: 15px;
+            }
+            .logout, .dashboard {
+                background-color: #D4AF37;
+                color: #8A1538;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 18px;
+                text-decoration: none;
+                font-weight: 600;
+                transition: background-color 0.2s ease;
+            }
+            .logout:hover, .dashboard:hover {
+                background-color: #e6c85b;
+            }
+            #chatbox {
+                width: 75%;
+                height: 500px;
+                border-radius: 15px;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+                background: white;
+                overflow-y: auto;
+                padding: 20px;
+                margin-top: 30px;
+            }
+            #user-input {
+                width: 70%;
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid #8A1538;
+                font-size: 14px;
+                margin-top: 15px;
+            }
+            button {
+                padding: 12px 20px;
+                border: none;
+                border-radius: 8px;
+                background-color: #8A1538;
+                color: #F7E7CE;
+                font-weight: 600;
+                margin-left: 10px;
+                cursor: pointer;
+            }
+            footer {
+                margin-top: auto;
+                padding: 15px;
+                color: #8A1538;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h2>{{ role }}</h2>
+            <div class="header-buttons">
+                <a href="{{ url_for('dashboard') }}" class="dashboard">Tableau de bord</a>
+                <a href="{{ url_for('logout') }}" class="logout">Déconnexion</a>
+            </div>
+        </header>
+
+        <div id="chatbox"></div>
+        <div>
+            <input id="user-input" type="text" placeholder="Posez votre question...">
+            <button onclick="sendMessage()">Envoyer</button>
+        </div>
+
+        <footer>© 2025 FIFA Analytics | Coupe du Monde 2022</footer>
+
+        <script>
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const chatbox = document.getElementById('chatbox');
+            const userMessage = input.value.trim();
+            if (!userMessage) return;
+
+            chatbox.innerHTML += `<p><b>Vous:</b> ${userMessage}</p>`;
+            input.value = '';
+
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userMessage })
+            });
+            const data = await response.json();
+            chatbox.innerHTML += `<p><b>Chatbot:</b> ${data.reply}</p>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+        </script>
+    </body>
+    </html>
+    """
+    return render_template_string(chatbot_html, role=role)
+
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    user_input = request.json.get("message", "")
+    if not user_input:
+        return {"reply": "Message vide."}
+    try:
+        result = subprocess.run(
+    ["ollama", "run", "everythinglm", user_input],
+    capture_output=True,
+    text=True
+)
+        response_text = result.stdout.strip() or "Aucune réponse du modèle."
+    except Exception as e:
+        response_text = f"Erreur: {str(e)}"
+
+    return {"reply": response_text}
 # ==============================
 # LOGOUT
 # ==============================
