@@ -16,8 +16,8 @@ users = {
 # Map roles to dashboard URLs
 DASHBOARD_URLS = {
     "Directeur Sportif": "https://app.powerbi.com/reportEmbed?reportId=7a2266a9-4920-4683-a606-86089ba6dbc7&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&filterPaneEnabled=false&navContentPaneEnabled=false",
-    "Entraîneur France": "https://app.powerbi.com/reportEmbed?reportId=bfc752d9-fab3-4e4f-88c3-15c3cd28de0c&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&filterPaneEnabled=false&navContentPaneEnabled=false",
-    "Recruteur France": "https://app.powerbi.com/reportEmbed?reportId=4796c976-389c-48be-b868-887d4db694c0&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&filterPaneEnabled=false&navContentPaneEnabled=false",
+    "Entraîneur France": "https://app.powerbi.com/reportEmbed?reportId=4796c976-389c-48be-b868-887d4db694c0&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&filterPaneEnabled=false&navContentPaneEnabled=false",
+    "Recruteur France": "https://app.powerbi.com/reportEmbed?reportId=bfc752d9-fab3-4e4f-88c3-15c3cd28de0c&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&filterPaneEnabled=false&navContentPaneEnabled=false",
 }
 
 # ==============================
